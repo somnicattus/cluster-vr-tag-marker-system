@@ -9,15 +9,19 @@ messageHandlerStorage.register(
   (message: ToggleTagMessageFromController) => {
     $.state.controller = message.controller;
     $.state.owner = message.player;
+
     const tag = $.subNode(`Tag${message.tagId}`);
+
     const enabled = tag.getEnabled();
     if (enabled === undefined) {
       throw new TypeError(`Personal tag "${message.tagId}" not found.`);
     }
+
     const toggleMessage = enabled ? 'disabled' : 'enabled';
     $.log(
       `Personal tag "${message.tagId}" ${toggleMessage} for player "${message.player.userId}"`,
     );
+
     tag.setEnabled(!enabled);
   },
 );
@@ -42,8 +46,8 @@ $.onUpdate(() => {
     } satisfies DestroyPersonalTagBoardMessage);
     return;
   }
+
   position.y += offsetY;
-  rotation.multiply(Quaternion.euler(0, 180, 0));
   $.setPosition(position);
   $.setRotation(rotation);
 });
