@@ -1,6 +1,5 @@
 {
   "name": "cluster-script",
-  "type": "module",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@tsconfig/bun": "^1.0.7",
@@ -18,7 +17,5 @@
     "build": "bun build.ts",
     "fetch-types": "bun fetch-types.ts"
   },
-  "dependencies": {
-    "type-fest": "^4.40.1"
-  }
+  "type": "module"
 }
