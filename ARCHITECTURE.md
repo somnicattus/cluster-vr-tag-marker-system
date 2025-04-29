@@ -67,7 +67,7 @@
 
 ```mermaid
 graph LR
-    subgraph World
+    subgraph World Static Components
         TC(tag-controller)
         TTB(toggle-tag-button)
         CTB(clear-all-tags-button)
