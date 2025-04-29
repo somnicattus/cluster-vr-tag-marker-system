@@ -1,23 +1,34 @@
 const tagController = $.worldItemReference('tagController');
 
 $.onInteract((player) => {
+  $.log(`player "${player.userId}" interacted with tag button "${$.id}"`);
+
   const tagId = $.getStateCompat('this', 'tagId', 'integer');
   if (tagId === undefined) {
     throw new TypeError(
       `tagId is undefined. Please check the state of the item "${$.id}".`,
     );
   }
-  $.log(`player "${player.userId}" interacted with tag button "${tagId}"`);
+
+  const tagGroupId = $.getStateCompat('this', 'tagGroupId', 'integer');
+  if (tagGroupId === undefined) {
+    throw new TypeError(
+      `tagGroupId is undefined. Please check the state of the item "${$.id}".`,
+    );
+  }
+
   tagController.send('toggleTag', {
     tagId,
+    tagGroupId,
     player: player,
   } satisfies ToggleTagMessage);
   $.log(
-    `Sent message to tag controller "${tagController.id}" to toggle tag "${tagId}" for player "${player.userId}"`,
+    `Sent message to tag controller "${tagController.id}" to toggle tag "${tagId}" in tag group "${tagGroupId}" for player "${player.userId}"`,
   );
 });
 
 export type ToggleTagMessage = {
   tagId: number;
+  tagGroupId: number;
   player: PlayerHandle;
 };

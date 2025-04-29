@@ -1,30 +1,111 @@
 import { createItemMessageHandlerStorage } from '../tools/message-handler-storage';
+import type { AddOffsetYMessage } from './add-offset-y-button';
 import type { ToggleTagMessageFromController } from './tag-controller';
 
 const messageHandlerStorage = createItemMessageHandlerStorage();
-const offsetY = 2;
 
-messageHandlerStorage.register(
-  'toggleTag',
-  (message: ToggleTagMessageFromController) => {
-    $.state.controller = message.controller;
-    $.state.owner = message.player;
+const toggleTagGroup = (
+  message: ToggleTagMessageFromController,
+  tagEnabled: boolean,
+) => {
+  const { tagId, tagGroupId, player } = message;
+  const tagGroup = $.subNode(`TagGroup${tagGroupId}`);
 
-    const tag = $.subNode(`Tag${message.tagId}`);
+  const groupEnabled = tagGroup.getEnabled();
+  if (groupEnabled === undefined) {
+    throw new TypeError(`Personal tag group "${tagGroupId}" not found.`);
+  }
 
-    const enabled = tag.getEnabled();
-    if (enabled === undefined) {
-      throw new TypeError(`Personal tag "${message.tagId}" not found.`);
+  if (tagEnabled) {
+    const enabledTagsInGroup = [
+      ...($.state.enabledTags?.[tagGroupId] ?? []),
+      tagId,
+    ];
+    $.state.enabledTags = {
+      ...$.state.enabledTags,
+      [tagGroupId]: enabledTagsInGroup,
+    };
+
+    if (!groupEnabled) {
+      tagGroup.setEnabled(true);
+      $.log(
+        `Personal tag group "${tagGroupId}" enabled for player "${player.userId}"`,
+      );
     }
-
-    const toggleMessage = enabled ? 'disabled' : 'enabled';
-    $.log(
-      `Personal tag "${message.tagId}" ${toggleMessage} for player "${message.player.userId}"`,
+  } else {
+    const enabledTagsInGroup = ($.state.enabledTags?.[tagGroupId] ?? []).filter(
+      (id) => id !== tagId,
     );
+    $.state.enabledTags = {
+      ...$.state.enabledTags,
+      [tagGroupId]: enabledTagsInGroup,
+    };
 
-    tag.setEnabled(!enabled);
-  },
-);
+    if (enabledTagsInGroup.length === 0 && groupEnabled) {
+      tagGroup.setEnabled(false);
+      $.log(
+        `Personal tag group "${tagGroupId}" disabled for player "${player.userId}"`,
+      );
+    }
+  }
+};
+
+const toggleTag = (message: ToggleTagMessageFromController) => {
+  const { tagId, player, controller } = message;
+
+  $.state.controller = controller;
+  $.state.owner = player;
+
+  const tag = $.subNode(`Tag${tagId}`);
+
+  let enabled = tag.getEnabled();
+  if (enabled === undefined) {
+    throw new TypeError(`Personal tag "${tagId}" not found.`);
+  }
+  enabled = !enabled;
+
+  toggleTagGroup(message, enabled);
+
+  tag.setEnabled(enabled);
+
+  $.log(
+    `Personal tag "${tagId}" ${enabled ? 'enabled' : 'disabled'} for player "${player.userId}"`,
+  );
+};
+
+const getOffsetY = () => {
+  const offsetY = $.state.offsetY;
+  if (offsetY == null) {
+    const offsetY = $.getStateCompat('this', 'defaultOffsetY', 'float') ?? 0;
+    $.state.offsetY = offsetY;
+    return offsetY;
+  }
+  return offsetY;
+};
+
+const resetOffsetY = () => {
+  $.state.offsetY = null;
+  $.log(
+    `Personal tag board offset Y reset for player "${$.state.owner?.userId}"`,
+  );
+};
+
+const addOffsetY = (message: AddOffsetYMessage) => {
+  const offsetY = getOffsetY();
+  const newOffsetY = offsetY + message.offsetY;
+  $.state.offsetY = newOffsetY;
+  $.log(
+    `Personal tag board offset Y changed from ${offsetY} to ${newOffsetY} for player "${$.state.owner?.userId}"`,
+  );
+};
+
+messageHandlerStorage.register('toggleTag', toggleTag);
+messageHandlerStorage.register('destroy', () => {
+  $.destroy();
+  $.log(`Personal tag board for player "${$.state.owner?.userId}" destroyed.`);
+});
+messageHandlerStorage.register('addOffsetY', addOffsetY);
+messageHandlerStorage.register('resetOffsetY', resetOffsetY);
 
 $.onUpdate(() => {
   $.state;
@@ -39,19 +120,22 @@ $.onUpdate(() => {
     $.log(
       `Owner ${owner.userDisplayName} (userId: ${owner.userId}, id: ${owner.id}). not found. Destroying personal tag board ${$.id}.`,
     );
-    $.destroy();
 
+    $.destroy();
     $.state.controller?.send('destroyPersonalTagBoard', {
       player: owner,
+      destroyed: true,
     } satisfies DestroyPersonalTagBoardMessage);
+
     return;
   }
 
-  position.y += offsetY;
+  position.y += getOffsetY();
   $.setPosition(position);
   $.setRotation(rotation);
 });
 
 export type DestroyPersonalTagBoardMessage = {
   player: PlayerHandle;
+  destroyed: boolean;
 };
