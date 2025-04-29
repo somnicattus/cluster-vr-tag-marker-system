@@ -19,7 +19,7 @@
     *   アクティブな `personal-tag-board` アイテムへの参照を、プレイヤーIDをキーとして `$.state.personalTagBoards` に保存します。
     *   ボタンから受信したメッセージを、対応するプレイヤーの `personal-tag-board` インスタンスに転送します。
     *   ボードが破棄されたときに、その状態から `personal-tag-board` の参照を削除する処理を行います。
-*   **依存関係**: `personal-tag-board.ts`（メッセージタイプとテンプレートID用）、`*-button.ts`（メッセージタイプ用）、`../tools/message-handler-storage.ts`。
+*   **依存関係**: `personal-tag-board.ts`（メッセージタイプとテンプレートID用）、`*-button.ts`（メッセージタイプ用）。
 
 ### 2. `personal-tag-board.ts`
 
@@ -31,7 +31,7 @@
     *   所有者プレイヤー（`$.state.owner`）とコントローラー参照（`$.state.controller`）を保存します。
     *   `$.onUpdate` で、垂直オフセットを適用しながら、所有者プレイヤーに合わせて位置と回転を継続的に更新します。
     *   `destroy` メッセージを受信した場合、または所有者プレイヤーが見つからなくなった場合に、自身の破棄（`$.destroy()`）を処理します。所有者の喪失により破棄された場合は `tag-controller` に通知します。
-*   **依存関係**: `tag-controller.ts`（メッセージタイプ用）、`add-offset-y-button.ts`（メッセージタイプ用）、`../tools/message-handler-storage.ts`。
+*   **依存関係**: `tag-controller.ts`（メッセージタイプ用）、`add-offset-y-button.ts`（メッセージタイプ用）。
 
 ### 3. `toggle-tag-button.ts`
 
