@@ -1,3 +1,4 @@
+import { debounce } from '../tools/debounce';
 import { createItemMessageHandlerStorage } from '../tools/message-handler-storage';
 import type { AddOffsetYMessage } from './add-offset-y-button';
 import type { DestroyPersonalTagBoardMessage } from './clear-all-tags-button';
@@ -108,7 +109,7 @@ messageHandlerStorage.register('destroy', () => {
 messageHandlerStorage.register('addOffsetY', addOffsetY);
 messageHandlerStorage.register('resetOffsetY', resetOffsetY);
 
-$.onUpdate(() => {
+const onUpdate = () => {
   $.state;
   const owner = $.state.owner;
   if (owner == null) {
@@ -134,4 +135,6 @@ $.onUpdate(() => {
   position.y += getOffsetY();
   $.setPosition(position);
   $.setRotation(rotation);
-});
+};
+
+$.onUpdate(debounce(onUpdate, 1 / 10));
