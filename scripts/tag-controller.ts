@@ -1,6 +1,6 @@
 import { createItemMessageHandlerStorage } from '../tools/message-handler-storage';
 import type { AddOffsetYMessage } from './add-offset-y-button';
-import type { DestroyPersonalTagBoardMessage } from './personal-tag-board';
+import type { DestroyPersonalTagBoardMessage } from './clear-all-tags-button';
 import type { ResetOffsetYMessage } from './reset-offset-y-button';
 import type { ToggleTagMessage } from './toggle-tag-button';
 

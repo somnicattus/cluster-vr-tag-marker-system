@@ -1,5 +1,6 @@
 import { createItemMessageHandlerStorage } from '../tools/message-handler-storage';
 import type { AddOffsetYMessage } from './add-offset-y-button';
+import type { DestroyPersonalTagBoardMessage } from './clear-all-tags-button';
 import type { ToggleTagMessageFromController } from './tag-controller';
 
 const messageHandlerStorage = createItemMessageHandlerStorage();
@@ -134,8 +135,3 @@ $.onUpdate(() => {
   $.setPosition(position);
   $.setRotation(rotation);
 });
-
-export type DestroyPersonalTagBoardMessage = {
-  player: PlayerHandle;
-  destroyed: boolean;
-};

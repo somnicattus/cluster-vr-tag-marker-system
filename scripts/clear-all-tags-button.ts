@@ -1,5 +1,3 @@
-import type { DestroyPersonalTagBoardMessage } from './personal-tag-board';
-
 const tagController = $.worldItemReference('tagController');
 
 $.onInteract((player) => {
@@ -13,3 +11,8 @@ $.onInteract((player) => {
     `Sent message to tag controller "${tagController.id}" to destroy personal tag board for player "${player.userId}"`,
   );
 });
+
+export type DestroyPersonalTagBoardMessage = {
+  player: PlayerHandle;
+  destroyed: boolean;
+};
