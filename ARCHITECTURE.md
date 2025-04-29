@@ -14,7 +14,7 @@
 
 *   **目的**: プレイヤーのタグボードを管理する中央ハブとして機能します。
 *   **責務**:
-    *   ボタンスクリプトからのメッセージ (`toggleTag`、`destroyPersonalTagBoard`、`addOffsetY`、`resetOffsetY`) をリッスンします。
+    *   ボタンスクリプトからのメッセージ (`toggleTag`, `destroyPersonalTagBoard`, `addOffsetY`, `resetOffsetY`) をリッスンします。
     *   プレイヤーに関連するメッセージが到着したときに、そのプレイヤー用の `personal-tag-board` アイテムインスタンスが存在しない場合は新規に作成します。
     *   アクティブな `personal-tag-board` アイテムへの参照を、プレイヤーIDをキーとして `$.state.personalTagBoards` に保存します。
     *   ボタンから受信したメッセージを、対応するプレイヤーの `personal-tag-board` インスタンスに転送します。
