@@ -1,4 +1,4 @@
-# cluster-script-template
+# cluster-vr-easy-tag-system
 
 [Cluster Script](https://docs.cluster.mu/creatorkit/world/cluster-script/) を TypeScript + Bun で開発します。
 
