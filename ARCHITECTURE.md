@@ -6,7 +6,7 @@
 
 このシステムにより、プレイヤーは自身のアバターに付けられたビジュアルタグを切り替えることができます。各プレイヤーは、自身を追従するパーソナルタグボードを持ちます。ワールド内のボタンを使用すると、プレイヤーは特定のタグを切り替えたり、すべてのタグをクリアしたり（ボードを破棄することによって）、タグボードの垂直オフセットを調整したりできます。
 
-中央の `tag-controller` スクリプトが、各プレイヤーの個々の `personal-tag-board` インスタンスの作成と通信を管理します。さまざまなボタンスクリプトは、インタラクション時に `tag-controller` にメッセージを送信します。
+中央の `tag-controller` スクリプトが、各プレイヤーの個々の `personal-tag-board` インスタンスの作成と通信を管理します。さまざまなボタンスクリプト (`toggle-tag-button.ts`, `clear-all-tags-button.ts`, `add-offset-y-button.ts`, `reset-offset-y-button.ts`) は、インタラクション時に `tag-controller` にメッセージを送信します。
 
 ## コンポーネント
 
@@ -63,7 +63,65 @@
     *   インタラクション時（`$.onInteract`）に、インタラクションした `player` の `resetOffsetY` メッセージを `tag-controller` に送信します。
 *   **依存関係**: `tag-controller.ts`（アイテム参照とメッセージタイプ用）。
 
+## コンポーネント間通信
+
+```mermaid
+graph LR
+    subgraph World
+        TC(tag-controller)
+        TTB(toggle-tag-button)
+        CTB(clear-all-tags-button)
+        AOB(add-offset-y-button)
+        ROB(reset-offset-y-button)
+    end
+
+    subgraph Player Specific
+        PTB(personal-tag-board)
+    end
+
+    Player -- Interact --> TTB
+    Player -- Interact --> CTB
+    Player -- Interact --> AOB
+    Player -- Interact --> ROB
+
+    TTB -- "send('toggleTag')" --> TC
+    CTB -- "send('destroyPersonalTagBoard')" --> TC
+    AOB -- "send('addOffsetY')" --> TC
+    ROB -- "send('resetOffsetY')" --> TC
+
+    TC -- "createItem()" --> PTB
+    TC -- "send('toggleTag')" --> PTB
+    TC -- "send('destroy')" --> PTB
+    TC -- "send('addOffsetY')" --> PTB
+    TC -- "send('resetOffsetY')" --> PTB
+
+    PTB -- "send('destroyPersonalTagBoard')" --> TC
+    PTB -- Follows --> Player
+```
+
 ## インタラクションフロー例：タグの切り替え
+
+```mermaid
+sequenceDiagram
+    participant Player
+    participant ToggleTagButton
+    participant TagController
+    participant PersonalTagBoard
+
+    Player->>+ToggleTagButton: Interact
+    ToggleTagButton->>+TagController: send("toggleTag", {tagId, tagGroupId, player})
+    alt Player has no board yet
+        TagController->>TagController: createItem(personalTagBoard)
+        TagController->>PersonalTagBoard: store reference
+    end
+    TagController->>+PersonalTagBoard: send("toggleTag", {tagId, tagGroupId, player, controller})
+    PersonalTagBoard->>PersonalTagBoard: subNode(Tag).setEnabled(!enabled)
+    PersonalTagBoard->>PersonalTagBoard: Update $.state.enabledTags
+    PersonalTagBoard->>PersonalTagBoard: subNode(TagGroup).setEnabled(needed)
+    deactivate PersonalTagBoard
+    deactivate TagController
+    deactivate ToggleTagButton
+```
 
 1.  `Player` が `toggle-tag-button` アイテムとインタラクトします。
 2.  `toggle-tag-button` スクリプト（`$.onInteract`）が、設定された `tagId` と `tagGroupId` を読み取ります。
