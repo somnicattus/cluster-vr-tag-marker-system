@@ -42,7 +42,7 @@ const toggleTag = (message: ToggleTagMessage) => {
     controller: $.itemHandle,
   } satisfies ToggleTagMessageFromController);
   $.log(
-    `Sent message to personal tag board "${tagBoard.id}" to toggle tag "${tagId}" in tag group "${tagGroupId}" for player "${player.userId}"`,
+    `Sent message to personal tag board "${tagBoard.id}" to toggle tag "${tagId}" ${tagGroupId == null ? '' : `in tag group "${tagGroupId}" `}for player "${player.userId}"`,
   );
 };
 

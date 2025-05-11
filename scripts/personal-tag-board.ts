@@ -7,7 +7,7 @@ import type { ToggleTagMessageFromController } from './tag-controller';
 const messageHandlerStorage = createItemMessageHandlerStorage();
 
 const toggleTagGroup = (
-  message: ToggleTagMessageFromController,
+  message: ToggleTagMessageFromController & { tagGroupId: number },
   tagEnabled: boolean,
 ) => {
   const { tagId, tagGroupId, player } = message;
@@ -66,7 +66,17 @@ const toggleTag = (message: ToggleTagMessageFromController) => {
   }
   enabled = !enabled;
 
-  toggleTagGroup(message, enabled);
+  if ($.getStateCompat('this', 'useTagGroup', 'boolean')) {
+    if (message.tagGroupId == null) {
+      throw new TypeError(
+        `Tag group ID is not defined. Please check the state of the toggle button for tag "${tagId}".`,
+      );
+    }
+    toggleTagGroup(
+      message as typeof message & { tagGroupId: typeof message.tagGroupId },
+      enabled,
+    );
+  }
 
   tag.setEnabled(enabled);
 
@@ -133,6 +143,42 @@ const onOwnerNotFound = (owner: PlayerHandle, deltaTime: number) => {
   } satisfies DestroyPersonalTagBoardMessage);
 };
 
+const setPositionAndRotation = (owner: PlayerHandle) => {
+  const useHumanoidBone =
+    $.getStateCompat('this', 'useHumanoidBone', 'boolean') ?? false;
+
+  const position =
+    (useHumanoidBone
+      ? (owner.getHumanoidBonePosition(HumanoidBone.Head) ??
+        // Fallback to 1.5m above the player's feet if head bone is not found
+        owner
+          .getPosition()
+          ?.add(new Vector3(0, 1.5, 0)))
+      : owner.getPosition()) ?? null;
+
+  // TODO: Use Local UI Renderer
+  const rotation =
+    (useHumanoidBone
+      ? owner.getHumanoidBoneRotation(HumanoidBone.Head)
+      : // Fallback to the player's rotation if head bone is not found
+        undefined) ?? owner.getRotation();
+  if (position == null || rotation == null) {
+    $.log(
+      `Owner ${owner.userDisplayName} (userId: ${owner.userId}, id: ${owner.id}). position or rotation not found.`,
+    );
+    return;
+  }
+
+  position.y += getOffsetY();
+  const eulerRotation = rotation.createEulerAngles();
+  eulerRotation.x = 0;
+  eulerRotation.z = 0;
+  const quaternionRotation = Quaternion.euler(eulerRotation);
+
+  $.setPosition(position);
+  $.setRotation(quaternionRotation);
+};
+
 const onUpdate = (deltaTime: number) => {
   const owner = $.state.owner;
   if (owner == null) {
@@ -144,19 +190,7 @@ const onUpdate = (deltaTime: number) => {
     return;
   }
   $.state.ownerNotFoundForSeconds = 0;
-  // TODO: Use camera position if camera API is available as non-beta feature
-  const position = owner.getPosition();
-  const rotation = owner.getRotation();
-  if (position == null || rotation == null) {
-    $.log(
-      `Owner ${owner.userDisplayName} (userId: ${owner.userId}, id: ${owner.id}). position or rotation not found.`,
-    );
-    return;
-  }
-
-  position.y += getOffsetY();
-  $.setPosition(position);
-  $.setRotation(rotation);
+  setPositionAndRotation(owner);
 };
 
 $.onUpdate(debounce(onUpdate, 1 / 10));

@@ -10,12 +10,7 @@ $.onInteract((player) => {
     );
   }
 
-  const tagGroupId = $.getStateCompat('this', 'tagGroupId', 'integer');
-  if (tagGroupId === undefined) {
-    throw new TypeError(
-      `tagGroupId is undefined. Please check the state of the item "${$.id}".`,
-    );
-  }
+  const tagGroupId = $.getStateCompat('this', 'tagGroupId', 'integer') ?? null;
 
   tagController.send('toggleTag', {
     tagId,
@@ -29,6 +24,6 @@ $.onInteract((player) => {
 
 export type ToggleTagMessage = {
   tagId: number;
-  tagGroupId: number;
+  tagGroupId: number | null;
   player: PlayerHandle;
 };
