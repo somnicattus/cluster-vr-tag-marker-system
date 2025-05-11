@@ -111,26 +111,46 @@ messageHandlerStorage.register('destroy', destroy);
 messageHandlerStorage.register('addOffsetY', addOffsetY);
 messageHandlerStorage.register('resetOffsetY', resetOffsetY);
 
-const onUpdate = () => {
-  $.state;
+const KEEP_BEFORE_DESTROY_SECONDS = 5;
+const onOwnerNotFound = (owner: PlayerHandle, deltaTime: number) => {
+  // Keep the board for 5 seconds in case of player connection issues
+  if ($.state.ownerNotFoundForSeconds == null)
+    $.state.ownerNotFoundForSeconds = 0;
+
+  $.state.ownerNotFoundForSeconds += deltaTime;
+  if ($.state.ownerNotFoundForSeconds < KEEP_BEFORE_DESTROY_SECONDS) {
+    return;
+  }
+
+  $.log(
+    `Owner ${owner.userDisplayName} (userId: ${owner.userId}, id: ${owner.id}) not found for ${KEEP_BEFORE_DESTROY_SECONDS} seconds. Destroying personal tag board ${$.id}.`,
+  );
+
+  $.destroy();
+  $.state.controller?.send('destroyPersonalTagBoard', {
+    player: owner,
+    destroyed: true,
+  } satisfies DestroyPersonalTagBoardMessage);
+};
+
+const onUpdate = (deltaTime: number) => {
   const owner = $.state.owner;
   if (owner == null) {
     return;
   }
+
+  if (!owner.exists()) {
+    onOwnerNotFound(owner, deltaTime);
+    return;
+  }
+  $.state.ownerNotFoundForSeconds = 0;
   // TODO: Use camera position if camera API is available as non-beta feature
   const position = owner.getPosition();
   const rotation = owner.getRotation();
   if (position == null || rotation == null) {
     $.log(
-      `Owner ${owner.userDisplayName} (userId: ${owner.userId}, id: ${owner.id}). not found. Destroying personal tag board ${$.id}.`,
+      `Owner ${owner.userDisplayName} (userId: ${owner.userId}, id: ${owner.id}). position or rotation not found.`,
     );
-
-    $.destroy();
-    $.state.controller?.send('destroyPersonalTagBoard', {
-      player: owner,
-      destroyed: true,
-    } satisfies DestroyPersonalTagBoardMessage);
-
     return;
   }
 

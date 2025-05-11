@@ -9,4 +9,5 @@ interface StateProxy {
     [tagGroupId: number]: number[];
   };
   offsetY?: number | null;
+  ownerNotFoundForSeconds?: number;
 }
