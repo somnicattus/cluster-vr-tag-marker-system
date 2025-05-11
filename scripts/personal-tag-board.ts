@@ -75,6 +75,11 @@ const toggleTag = (message: ToggleTagMessageFromController) => {
   );
 };
 
+const destroy = () => {
+  $.destroy();
+  $.log(`Personal tag board for player "${$.state.owner?.userId}" destroyed.`);
+};
+
 const getOffsetY = () => {
   const offsetY = $.state.offsetY;
   if (offsetY == null) {
@@ -102,10 +107,7 @@ const addOffsetY = (message: AddOffsetYMessage) => {
 };
 
 messageHandlerStorage.register('toggleTag', toggleTag);
-messageHandlerStorage.register('destroy', () => {
-  $.destroy();
-  $.log(`Personal tag board for player "${$.state.owner?.userId}" destroyed.`);
-});
+messageHandlerStorage.register('destroy', destroy);
 messageHandlerStorage.register('addOffsetY', addOffsetY);
 messageHandlerStorage.register('resetOffsetY', resetOffsetY);
 
