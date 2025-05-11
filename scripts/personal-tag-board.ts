@@ -121,7 +121,7 @@ messageHandlerStorage.register('destroy', destroy);
 messageHandlerStorage.register('addOffsetY', addOffsetY);
 messageHandlerStorage.register('resetOffsetY', resetOffsetY);
 
-const KEEP_BEFORE_DESTROY_SECONDS = 5;
+const KEEP_BEFORE_DESTROY_SECONDS = 2;
 const onOwnerNotFound = (owner: PlayerHandle, deltaTime: number) => {
   // Keep the board for 5 seconds in case of player connection issues
   if ($.state.ownerNotFoundForSeconds == null)
