@@ -45,8 +45,8 @@
 
 *   **目的**: インタラクションしたプレイヤーのタグボードを削除する、インタラクト可能なボタンアイテム。
 *   **責務**:
-    *   インタラクション時 (`$.onInteract`) に、インタラクションした `player` の `destroyPersonalTagBoard` メッセージを `tag-controller` に送信します。
-*   **依存関係**: `tag-controller.ts` (アイテム参照用) 。
+    *   インタラクション時 (`$.onInteract`) に、インタラクションした `player` と `destroyed: false` を含む `destroyPersonalTagBoard` メッセージを `tag-controller` に送信します。
+*   **依存関係**: `tag-controller.ts` (アイテム参照用)。
 
 ### 5. `add-offset-y-button.ts`
 
@@ -54,14 +54,14 @@
 *   **責務**:
     *   アイテムの状態 (`$.getStateCompat`) から `offsetY` 値を読み取ります。
     *   インタラクション時 (`$.onInteract`) に、`offsetY` とインタラクションした `player` を含む `addOffsetY` メッセージを `tag-controller` に送信します。
-*   **依存関係**: `tag-controller.ts` (アイテム参照用) 。
+*   **依存関係**: `tag-controller.ts` (アイテム参照用)。
 
 ### 6. `reset-offset-y-button.ts`
 
 *   **目的**: プレイヤーのタグボードの垂直オフセットをリセットする、インタラクト可能なボタンアイテム。
 *   **責務**:
-    *   インタラクション時 (`$.onInteract`) に、インタラクションした `player` の `resetOffsetY` メッセージを `tag-controller` に送信します。
-*   **依存関係**: `tag-controller.ts` (アイテム参照用) 。
+    *   インタラクション時 (`$.onInteract`) に、インタラクションした `player` を含む `resetOffsetY` メッセージを `tag-controller` に送信します。
+*   **依存関係**: `tag-controller.ts` (アイテム参照用)。
 
 ## コンポーネント間通信
 
@@ -84,18 +84,18 @@ graph LR
     Player -- Interact --> AOB
     Player -- Interact --> ROB
 
-    TTB -- "send('toggleTag')" --> TC
-    CTB -- "send('destroyPersonalTagBoard')" --> TC
-    AOB -- "send('addOffsetY')" --> TC
-    ROB -- "send('resetOffsetY')" --> TC
+    TTB -- "send('toggleTag', {tagId, tagGroupId, player})" --> TC
+    CTB -- "send('destroyPersonalTagBoard', {player, destroyed: false})" --> TC
+    AOB -- "send('addOffsetY', {player, offsetY})" --> TC
+    ROB -- "send('resetOffsetY', {player})" --> TC
 
     TC -- "createItem()" --> PTB
-    TC -- "send('toggleTag')" --> PTB
-    TC -- "send('destroy')" --> PTB
-    TC -- "send('addOffsetY')" --> PTB
-    TC -- "send('resetOffsetY')" --> PTB
+    TC -- "send('toggleTag', {tagId, tagGroupId, player, controller})" --> PTB
+    TC -- "send('destroy', null)" --> PTB
+    TC -- "send('addOffsetY', {offsetY, player})" --> PTB
+    TC -- "send('resetOffsetY', null)" --> PTB
 
-    PTB -- "send('destroyPersonalTagBoard')" --> TC
+    PTB -- "send('destroyPersonalTagBoard', {player, destroyed: true})" --> TC
     PTB -- Follows --> Player
 ```
 
