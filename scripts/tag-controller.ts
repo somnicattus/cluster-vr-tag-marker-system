@@ -55,6 +55,12 @@ const destroyPersonalTagBoard = (message: DestroyPersonalTagBoardMessage) => {
       `Personal tag board ${tagBoard?.id} for ${message.player.userId} is removed from state.`,
     );
     if (!message.destroyed) {
+      if (tagBoard == null) {
+        $.log(
+          `Personal tag board for player "${message.player.userId}" not found in state.`,
+        );
+        return;
+      }
       tagBoard?.send('destroy', null);
       $.log(
         `Sent message to personal tag board "${tagBoard?.id}" to destroy it for player "${message.player.userId}"`,
