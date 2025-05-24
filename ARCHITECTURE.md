@@ -1,6 +1,6 @@
 # アーキテクチャドキュメント
 
-このドキュメントは、Cluster VR Easy Tag System スクリプトのアーキテクチャについて概説します。
+このドキュメントは、Cluster VR Tag Marker System スクリプトのアーキテクチャについて概説します。
 
 ## 概要
 
