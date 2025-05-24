@@ -1,4 +1,4 @@
-# cluster-vr-easy-tag-system
+# cluster-vr-tag-marker-system
 
 [Cluster](https://cluster.mu) で使用できるタグマーカーシステムのスクリプトです。ワールドスクリプトとして動作します。
 
