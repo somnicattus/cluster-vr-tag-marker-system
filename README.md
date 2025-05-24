@@ -1,6 +1,6 @@
 # cluster-vr-tag-marker-system
 
-[Cluster](https://cluster.mu) で使用できるタグマーカーシステムのスクリプトです。ワールドスクリプトとして動作します。
+[cluster](https://cluster.mu) で使用できるタグマーカーシステムのスクリプトです。ワールドスクリプトとして動作します。
 
 ## 使用方法
 
